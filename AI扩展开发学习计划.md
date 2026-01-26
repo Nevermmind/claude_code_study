@@ -420,7 +420,7 @@ MCP API 网关服务器
 | 部分 | 阶段 | 状态 | 完成日期 | 主要收获 | 需要改进 |
 |------|------|------|----------|----------|----------|
 | MCP | 第一阶段 | ✅ 已完成 | 2025-01-25 | 创建了第一个 MCP 服务器 | 需要深入理解 Tool vs Resource |
-| MCP | 第二阶段 | 🚧 进行中 | | | |
+| MCP | 第二阶段 | ✅ 已完成 | 2025-01-26 | 理解 FastMCP vs 低级别 API，配置官方服务器 | 需要更多实践 |
 | Skills | 第三阶段 | 待开始 | | | |
 | 整合 | 第四阶段 | 待开始 | | | |
 | 高级 | 第五阶段 | 待开始 | | | |
@@ -461,7 +461,89 @@ MCP API 网关服务器
 2. Tool vs Resource 的使用场景？
 3. AI 如何知道调用什么？
 
-#### 第二阶段：进行中...
+#### 第二阶段：深入理解 MCP 协议与官方服务器 ✅
+
+**日期**：2025-01-26
+
+**已完成**：
+- ✅ 理解 MCP vs 普通 API 的本质区别
+- ✅ 理解 Tool vs Resource vs Prompt 的区别
+- ✅ 学习 FastMCP vs 低级别 API 的使用场景
+- ✅ 配置并测试官方 MCP 服务器（filesystem, fetch）
+- ✅ 分析 Fetch 服务器的源代码
+
+**核心知识点**：
+
+**1. MCP vs 普通 API**
+- MCP 使用 stdio（进程间通信），不是 HTTP
+- 客户端启动服务器为子进程
+- 通过 stdin/stdout 传递 JSON-RPC 消息
+- 浏览器无法直接访问 MCP 服务器
+
+**2. Tool vs Resource vs Prompt**
+
+| 类型 | 用途 | 返回值 | 使用场景 | 例子 |
+|------|------|--------|----------|------|
+| **Tool** | 可执行的功能 | 具体结果（字符串、数字等） | AI 自动调用 | calculate, fetch, execute_query |
+| **Resource** | 静态/动态数据 | 数据内容 | AI 访问数据源 | file://config.json, database://tables |
+| **Prompt** | 预定义的提示模板 | 消息列表（提示模板） | 用户主动选择 | code_review, math_tutor |
+
+**判断标准**：
+- ✅ 用 Tool：执行操作、有副作用、需要参数
+- ✅ 用 Resource：提供数据、只读操作、URI 友好
+- ✅ 用 Prompt：复杂工作流、需要步骤说明、用户主动触发
+
+**3. FastMCP vs 低级别 API**
+
+| API | 适用场景 | 优势 | 劣势 |
+|-----|---------|------|------|
+| **FastMCP** | 快速开发、简单工具 | 自动处理签名、JSON Schema、调用 | 灵活性较低 |
+| **低级别 API** | 复杂需求、完全控制 | 可实现任何逻辑 | 需要手动处理细节 |
+
+**FastMCP 自动帮你做**：
+- 提取函数签名
+- 生成 JSON Schema
+- 注册工具到服务器
+- 处理函数调用
+
+**低级别 API 需要手动做**：
+- 定义 BaseModel
+- 手动注册工具
+- 手动解析参数
+- 处理错误和验证
+
+**4. 已配置的 MCP 服务器**
+
+| 服务器 | 命令 | 功能 | 状态 |
+|--------|------|------|------|
+| filesystem | npx | 文件系统操作（13个工具） | ✅ 已测试 |
+| fetch | python | 获取网页内容 | ✅ 已测试 |
+| git | npx | Git 操作 | ✅ 已配置 |
+| brave-search | npx | 网页搜索（需 API Key） | ⚠️ 需配置 |
+
+**5. Fetch 服务器的设计亮点**
+
+**为什么不用 FastMCP？**
+- 需要同时实现 Tool 和 Prompt
+- 需要 robots.txt 检查（前置验证）
+- 复杂的错误处理
+- 支持分页（start_index, max_length）
+
+**Tool vs Prompt 的差异**：
+- **Tool**：检查 robots.txt（AI 自动访问），使用 `user_agent_autonomous`
+- **Prompt**：不检查 robots.txt（用户主动选择），使用 `user_agent_manual`
+
+**实践文件**：
+- `mcp-learning/my_first_server.py` - 第一个 MCP 服务器
+- `mcp-learning/test_client.py` - 测试客户端
+- `mcp-learning/test_filesystem_server.py` - 测试 filesystem 服务器
+- `mcp-learning/test_fetch_server.py` - 测试 fetch 服务器
+- `.claude/mcp_servers.json` - MCP 服务器配置
+
+**待实践**：
+- [ ] 为 calculate 服务器添加 Prompt 版本（math_tutor）
+- [ ] 创建数据库操作 MCP 服务器
+- [ ] 创建 API 集成 MCP 服务器
 
 ### 第二部分：Agent Skills 笔记
 
