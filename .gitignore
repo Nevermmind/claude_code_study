@@ -37,7 +37,12 @@ env/
 *~
 
 # Claude Code
+# 忽略 .claude 目录，但允许 skills
 .claude/
+!.claude/skills/
+!.claude/skills/*.py
+!.claude/skills/*.md
+!.claude/mcp_servers.json
 
 # OS
 .DS_Store

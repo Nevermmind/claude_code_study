@@ -421,7 +421,7 @@ MCP API 网关服务器
 |------|------|------|----------|----------|----------|
 | MCP | 第一阶段 | ✅ 已完成 | 2025-01-25 | 创建了第一个 MCP 服务器 | 需要深入理解 Tool vs Resource |
 | MCP | 第二阶段 | ✅ 已完成 | 2025-01-26 | 理解 FastMCP vs 低级别 API，配置官方服务器 | 需要更多实践 |
-| Skills | 第三阶段 | 待开始 | | | |
+| Skills | 第三阶段 | ✅ 已完成 | 2025-01-29 | 理解 Agent Skills 概念，创建调用 MCP 的 Skill | 需要实践复杂工作流 |
 | 整合 | 第四阶段 | 待开始 | | | |
 | 高级 | 第五阶段 | 待开始 | | | |
 
@@ -547,6 +547,103 @@ MCP API 网关服务器
 
 ### 第二部分：Agent Skills 笔记
 
+#### 第三阶段：Agent Skills 入门 ✅
+
+**日期**：2025-01-29
+
+**已完成**：
+- ✅ 理解 Agent Skills 的概念
+- ✅ 创建第一个 Agent Skill（hello.py）
+- ✅ 创建调用 MCP 的 Skill（calc.py）
+- ✅ 成功测试 Skill 调用 MCP 服务器
+- ✅ 理解 MCP vs Agent Skills 的使用场景
+- ✅ 理解 Vibe Coding 的工作原理
+
+**核心知识点**：
+
+**1. Agent Skills 的本质**
+- Agent Skills = **可执行脚本**
+- 可以调用 MCP 服务器
+- 提供简化的用户接口
+- 与 MCP 互补（不是替代）
+
+**2. Agent Skills 调用 MCP 的流程**
+```
+用户命令
+  ↓
+Agent Skill (可执行脚本)
+  ↓
+MCP 客户端（Skill 内部启动）
+  ↓
+MCP 服务器（stdio 通信）
+  ↓
+返回结果
+```
+
+**3. MCP vs Agent Skills 的使用场景**
+
+| 需求特点 | 使用 |
+|---------|------|
+| 每次都不一样 | MCP ✅ |
+| 需要 AI 智能决策 | MCP ✅ |
+| 简单查询 | MCP ✅ |
+| 固定流程 | Skills ✅ |
+| 重复性任务 | Skills ✅ |
+| 复杂工作流 | Skills ✅ |
+
+**判断标准**：
+- **90% 的情况用 MCP**：灵活需求、AI 决策、简单查询
+- **10% 的情况用 Skills**：固定流程、重复任务、复杂工作流
+
+**4. 实际调用路径对比**
+
+**场景："10加5等于多少"**
+- **我会用**：直接调用 MCP（更直接、更快）
+- **我不会用**：Agent Skills（多一层，没必要）
+
+**场景："部署应用"**
+- **我会用**：Agent Skills（封装复杂流程）
+- **Skill 内部**：调用多个 MCP 服务器
+
+**5. Vibe Coding 时我用的技能**
+
+**Claude Code CLI 的能力组成**：
+- **内置能力**（90%）：Read, Write, Edit, Bash, Glob, Grep
+- **MCP 服务器**（10%）：filesystem, fetch, git
+- **Agent Skills**（很少）：固定工作流
+
+**例子**：
+- "更新学习计划" → Read + Edit + Bash（内置）
+- "获取网页内容" → fetch MCP
+- "部署应用" → deploy Agent Skill
+
+**6. 为什么新闻搜索用 MCP？**
+
+**原因**：
+- 需求不固定（今天科技，明天医疗）
+- 需要 AI 决策（过滤、排序、总结）
+- 更灵活、更直接
+
+**如果用 Skills**：需要无穷多个 Skill（search_tech, search_medical, ...）
+
+**实践文件**：
+- `.claude/skills/hello.py` - 最简单的 Skill
+- `.claude/skills/calc.py` - 调用 MCP 的 Skill ✅
+- `.claude/skills/math_tutor.py` - 数学辅导 Skill
+- `.claude/skills/README.md` - Skills 学习文档
+
+**测试结果**：
+```bash
+python calc.py add 10 5      # 15.0
+python calc.py multiply 7 6  # 42.0
+python calc.py divide 20 4   # 5.0
+```
+
+**待实践**：
+- [ ] 创建更复杂的 Agent Skills
+- [ ] 创建调用多个 MCP 的 Skill
+- [ ] 实现错误处理和重试机制
+
 ### 第三部分：整合实践笔记
 
 ### 第四部分：高级主题笔记
@@ -555,23 +652,51 @@ MCP API 网关服务器
 
 ## 🎯 下一步行动
 
-### 当前任务
-1. 🎯 **立即行动**：回答第一阶段的思考问题
-2. 📝 **开始设计**：数据库操作 MCP 服务器的架构
-3. 🚀 **开始编码**：实现第一个数据库工具
+### 当前进度
+- ✅ 第一部分：MCP 基础（已完成）
+- ✅ 第二部分：Agent Skills 入门（已完成）
+- 📋 第三部分：整合实践（待开始）
+- 📋 第四部分：高级主题（待开始）
+
+### 下一步选择
+
+**选项 A：创建数据库操作 MCP 服务器**
+- 设计数据库操作服务器架构
+- 实现 Tools：execute_query, list_tables, get_schema
+- 实现 Resources：table://{name}, schema://
+- 创建对应的 Agent Skill
+
+**选项 B：创建 API 集成 MCP 服务器**
+- 设计 API 网关服务器
+- 实现 Tools：fetch_weather, search_news
+- 实现 Resources：cache://, weather://{city}
+- 添加缓存、错误重试、速率限制
+
+**选项 C：创建综合项目**
+- 整合多个 MCP 服务器
+- 创建工作流 Agent Skills
+- 实现完整的工具链
+- 数据库 + API + Skills
+
+**选项 D：继续深入理解现有知识**
+- 实践 Tool vs Prompt（为 calculate 添加 Prompt 版本）
+- 深入学习低级别 API
+- 分析更多官方服务器源码
 
 ### 需要做的选择
-1. **数据库选择**：
+
+1. **下一步方向**：
+   - A) 数据库操作 MCP 服务器
+   - B) API 集成 MCP 服务器
+   - C) 综合项目
+   - D) 继续深入学习
+
+2. **数据库选择**（如果选 A）：
    - SQLite（简单，单文件）
    - PostgreSQL（功能强大）
    - MySQL（常见）
 
-2. **功能优先级**：
-   - A) 先实现基本查询功能
-   - B) 先实现表结构查看
-   - C) 先实现数据插入/更新
-
-3. **学习方式**：
+3. **实践方式**：
    - A) 我先设计，你帮我审查
    - B) 你给示例，我模仿学习
    - C) 并行进行，边做边学
